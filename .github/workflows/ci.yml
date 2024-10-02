@@ -6,26 +6,29 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node: [12, 14, 16, 20]
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.0.0
+      - name: Check out repo
+        uses: actions/checkout@v4.2.0
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.5
+      - name: Install node
+        uses: actions/setup-node@v4.0.4
         with:
-          node-version: 12
-      
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 13
+          node-version: ${{ matrix.node }}
 
-      - run: npm ci
+      - run: yarn install
 
-      - run: npm test
+      - run: yarn test
 
-      - run: npm run build
+      - run: yarn run build
